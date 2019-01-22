@@ -11,15 +11,11 @@ var ConfigDir string
 
 const ServiceConfigFile = "service_info.yml"
 
-var Config config
-
-type config struct {
-	ServiceConfig ServiceConfig
-}
+var ServiceConf ServiceConfig
 
 type ServiceConfig struct {
 	ServiceName string `yaml:"ServiceName"`
-	ServicePort int `yaml:"ServicePort"`
+	ServicePort string `yaml:"ServicePort"`
 }
 
 func InitConfig() {
@@ -32,5 +28,5 @@ func LoadServiceConfig() {
 	if err != nil {
 		return
 	}
-	yaml.Unmarshal(configFile, &Config.ServiceConfig)
+	yaml.Unmarshal(configFile, &ServiceConf)
 }

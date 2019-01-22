@@ -25,16 +25,16 @@ type RegisterContext struct {
 func NewRegisterContest() *RegisterContext {
 	return &RegisterContext{
 		Address:     "",
-		ServiceName: Config.ServiceConfig.ServiceName,
+		ServiceName: ServiceConf.ServiceName,
 		Tags:        []string{},
-		Port:        Config.ServiceConfig.ServicePort,
+		Port:        helper.S2I(ServiceConf.ServicePort),
 		TTL:         2 * time.Minute,
 		DeregisterCriticalServiceAfter: 1 * time.Minute,
 		Interval:                       10 * time.Second,
 	}
 }
 
-// 通过consul注册服务
+
 func (r *RegisterContext) Register() error {
 	config := consul.DefaultConfig()
 	config.Address = r.Address

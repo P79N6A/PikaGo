@@ -1,2 +1,2 @@
 ServiceName: "carey.is.genius"
-ServicePort: 9785
+ServicePort: "9785"
