@@ -8,8 +8,8 @@ type Option struct {
 
 type Options func(o *Option)
 
-func WithGRPCOpts(gopts ...grpc.ServerOption) Options {
+func WithGRPCOpts(gOpts ...grpc.ServerOption) Options {
 	return func(o *Option) {
-		o.gOpts = gopts
+		o.gOpts = gOpts
 	}
 }

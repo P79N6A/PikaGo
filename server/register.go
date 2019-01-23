@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/Carey6918/grpc/helper"
+	"github.com/Carey6918/PikaRPC/helper"
 	consul "github.com/hashicorp/consul/api"
 	"time"
 )

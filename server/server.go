@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/Carey6918/grpc/helper"
+	"github.com/Carey6918/PikaRPC/helper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -14,7 +14,7 @@ import (
 
 type Server struct {
 	gServer  *grpc.Server
-	option   Option
+	option   *Option
 	listener net.Listener
 }
 
@@ -32,7 +32,7 @@ func NewServer(opts ...Options) {
 	var server Server
 
 	for _, opt := range opts {
-		opt(&server.option)
+		opt(server.option)
 	}
 	server.gServer = grpc.NewServer(server.option.gOpts...) // 初始化grpc服务
 	GServer = &server
