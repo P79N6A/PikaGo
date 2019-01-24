@@ -2,8 +2,14 @@ package client
 
 import (
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/resolver"
 	"sync"
+	"time"
 )
+
+func init() {
+	resolver.Register(NewBuilder("test")) // consul lb
+}
 
 type Client struct {
 	sync.RWMutex
@@ -15,6 +21,9 @@ var GClient *Client
 
 func NewClient(opts ...Options) {
 	var client Client
+	client.options = &Option{
+		watchInterval: 5 * time.Second,
+	}
 	for _, opt := range opts {
 		opt(client.options)
 	}
@@ -33,7 +42,7 @@ func GetConn(service string) (*grpc.ClientConn, error) {
 	GClient.Lock()
 	defer GClient.Unlock()
 
-	conn, err := grpc.Dial(service, grpc.WithBalancerName(service))
+	conn, err := grpc.Dial(service)
 	if err != nil {
 		return nil, err
 	}

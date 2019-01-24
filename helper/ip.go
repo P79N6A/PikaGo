@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"net"
 )
 
@@ -18,4 +19,8 @@ func GetLocalIP() string {
 		}
 	}
 	return ""
+}
+
+func GetLocalAddress(port string) string{
+	return fmt.Sprintf("%s:%s",GetLocalIP(),port)
 }

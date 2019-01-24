@@ -24,7 +24,7 @@ type RegisterContext struct {
 
 func NewRegisterContest() *RegisterContext {
 	return &RegisterContext{
-		Address:     "",
+		Address:     helper.GetLocalAddress(ServiceConf.ServicePort),
 		ServiceName: ServiceConf.ServiceName,
 		Tags:        []string{},
 		Port:        helper.S2I(ServiceConf.ServicePort),
@@ -33,7 +33,6 @@ func NewRegisterContest() *RegisterContext {
 		Interval:                       10 * time.Second,
 	}
 }
-
 
 func (r *RegisterContext) Register() error {
 	config := consul.DefaultConfig()
