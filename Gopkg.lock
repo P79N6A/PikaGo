@@ -2,6 +2,22 @@
 
 
 [[projects]]
+  digest = "1:f538c7ba609fac2b09bebd5d42a74c4bc57c6d020691afb7c9ff2698fa5902a0"
+  name = "code.byted.org/golf/consul"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "65dfcd8366755619b54e0a4357bde420b592e650"
+  version = "v2.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c57ad35d63c0e275de7e92f4ba61fdda896d11b9a55d74957d54c3c6b14c1cee"
+  name = "code.byted.org/gopkg/pkg"
+  packages = ["log"]
+  pruneopts = "UT"
+  revision = "d31e5db061b0d7ef861649cf36e4aaa2a01e99d0"
+
+[[projects]]
   digest = "1:6c0f1bc4d83abbdcb860204b7935b5cf072d449e225c33946b68968aa06d20a0"
   name = "github.com/armon/go-metrics"
   packages = ["."]
@@ -176,9 +192,13 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "code.byted.org/golf/consul",
+    "code.byted.org/gopkg/pkg/log",
+    "github.com/golang/protobuf/proto",
     "github.com/hashicorp/consul/api",
     "google.golang.org/grpc",
     "google.golang.org/grpc/reflection",
+    "google.golang.org/grpc/resolver",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

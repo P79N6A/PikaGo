@@ -1,6 +1,7 @@
 package server
 
 import (
+	"code.byted.org/gopkg/pkg/log"
 	"errors"
 	"fmt"
 	"github.com/Carey6918/PikaRPC/helper"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Server struct {
@@ -23,14 +25,15 @@ var GServer *Server // 全局服务
 func Init() {
 	InitConfig()
 
-	NewRegisterContest().Register() // 通过consul注册服务
-
-	NewServer(WithGRPCOpts())
+	if err := NewRegisterContest().Register(); err != nil { // 通过consul注册服务
+		log.Fatalf("consul register failed, err= %v", err)
+	}
+	NewServer(WithGRPCOpts(grpc.ConnectionTimeout(500 * time.Millisecond)))
 }
 
 func NewServer(opts ...Options) {
 	var server Server
-
+	server.option = new(Option)
 	for _, opt := range opts {
 		opt(server.option)
 	}
@@ -41,7 +44,7 @@ func NewServer(opts ...Options) {
 func Run() error {
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- GServer.Serve()
+		errCh <- GServer.serve()
 	}()
 	return waitSignal(errCh)
 }
@@ -58,7 +61,7 @@ func waitSignal(errCh chan error) error {
 			case syscall.SIGTERM: // 结束程序(可以被捕获、阻塞或忽略)
 				return errors.New(sig.String())
 			case syscall.SIGHUP, syscall.SIGINT: // 终端连接断开/用户发送(ctrl+c)结束
-				GServer.Stop()
+				GServer.stop()
 				return errors.New(sig.String())
 			}
 		case err := <-errCh:
@@ -68,28 +71,34 @@ func waitSignal(errCh chan error) error {
 	return <-errCh
 }
 
-func (s *Server) Serve() error {
-	if err := s.Listen(); err != nil {
+func (s *Server) serve() error {
+	if err := s.listen(); err != nil {
 		return err
 	}
 
 	// 注册grpc服务
 	reflection.Register(s.gServer)
 	if err := s.gServer.Serve(s.listener); err != nil {
+		log.Errorf("grpc serve failed, err= %v", err)
 		return err
 	}
 	return nil
 }
 
-func (s *Server) Stop() error {
+func (s *Server) stop() error {
 	return s.listener.Close()
 }
 
-func (s *Server) Listen() error {
+func (s *Server) listen() error {
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", helper.GetLocalIP(), ServiceConf.ServicePort))
 	if err != nil {
+		log.Errorf("listen tcp failed, err= %v", err)
 		return err
 	}
 	s.listener = listener
 	return nil
+}
+
+func GetGRPCServer() *grpc.Server {
+	return GServer.gServer
 }

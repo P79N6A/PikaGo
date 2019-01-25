@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"sync"
@@ -19,7 +20,7 @@ type Client struct {
 
 var GClient *Client
 
-func NewClient(opts ...Options) {
+func Init(opts ...Options) {
 	var client Client
 	client.options = &Option{
 		watchInterval: 5 * time.Second,
@@ -31,22 +32,27 @@ func NewClient(opts ...Options) {
 	GClient = &client
 }
 
-func GetConn(service string) (*grpc.ClientConn, error) {
+func GetConn(serviceName string) (*grpc.ClientConn, error) {
 	GClient.RLock()
-	if cli, ok := GClient.connPool[service]; ok {
+	if cli, ok := GClient.connPool[serviceName]; ok {
 		GClient.RUnlock()
 		return cli, nil
 	}
 	GClient.RUnlock()
 
-	GClient.Lock()
-	defer GClient.Unlock()
-
-	conn, err := grpc.Dial(service)
+	// 通过consul服务发现
+	service, err := discovery(serviceName)
 	if err != nil {
 		return nil, err
 	}
-	GClient.connPool[service] = conn
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", service.Address, service.Port), grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	GClient.Lock()
+	defer GClient.Unlock()
+	GClient.connPool[serviceName] = conn
 	return conn, nil
 }
 

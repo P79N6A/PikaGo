@@ -27,6 +27,10 @@ func (b *ConsulBuilder) Build(target resolver.Target, cc resolver.ClientConn, op
 		addr:   make(chan []resolver.Address, 1),
 		done:   make(chan struct{}, 1),
 	}
+	go r.updater()
+	go r.watch()
+	r.resolve()
+
 	return r, nil
 }
 

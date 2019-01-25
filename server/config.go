@@ -3,6 +3,7 @@ package server
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -26,7 +27,9 @@ func InitConfig() {
 func LoadServiceConfig() {
 	configFile, err := ioutil.ReadFile(filepath.Join(ConfigDir, ServiceConfigFile))
 	if err != nil {
+		log.Fatalf("ReadFile, err= %v", err)
 		return
 	}
 	yaml.Unmarshal(configFile, &ServiceConf)
+	log.Printf("Conf=%v", ServiceConf)
 }
