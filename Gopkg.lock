@@ -139,7 +139,7 @@
   revision = "db91494dd46c1fdcbbde05e5ff5eb56df8f7d79a"
 
 [[projects]]
-  digest = "1:468bc9b39a60a4ac6726976d60d32cb0fbcaf749fea4139be8cec53fdfbd82d5"
+  digest = "1:0f468f8bbf202cd8fe14820f0f8161fbda6704a43ccb7e06b205105b1f729425"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -154,6 +154,7 @@
     "encoding",
     "encoding/proto",
     "grpclog",
+    "health/grpc_health_v1",
     "internal",
     "internal/backoff",
     "internal/binarylog",
@@ -197,6 +198,7 @@
     "github.com/golang/protobuf/proto",
     "github.com/hashicorp/consul/api",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/health/grpc_health_v1",
     "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/resolver",
     "gopkg.in/yaml.v2",

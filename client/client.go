@@ -23,7 +23,7 @@ var GClient *Client
 func Init(opts ...Options) {
 	var client Client
 	client.options = &Option{
-		watchInterval: 5 * time.Second,
+		watchInterval: 20 * time.Second,
 	}
 	for _, opt := range opts {
 		opt(client.options)

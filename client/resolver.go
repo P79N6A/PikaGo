@@ -1,6 +1,7 @@
 package client
 
 import (
+	"code.byted.org/gopkg/pkg/log"
 	"github.com/Carey6918/PikaRPC/helper"
 	"github.com/hashicorp/consul/api"
 	"google.golang.org/grpc/resolver"
@@ -62,9 +63,10 @@ func (r *ConsulResolver) resolve() {
 	addresses := make([]resolver.Address, 0, len(services))
 
 	for _, s := range services {
+
 		address := s.ServiceAddress
 		port := s.ServicePort
-
+		log.Infof("address= %v, port= %v", address, port)
 		if address == "" {
 			address = s.Address
 		}

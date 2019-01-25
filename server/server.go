@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Carey6918/PikaRPC/helper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"net"
 	"os"
@@ -25,10 +26,14 @@ var GServer *Server // 全局服务
 func Init() {
 	InitConfig()
 
-	if err := NewRegisterContest().Register(); err != nil { // 通过consul注册服务
+	// 通过consul注册服务
+	if err := NewRegisterContest().Register(); err != nil {
 		log.Fatalf("consul register failed, err= %v", err)
 	}
+
+
 	NewServer(WithGRPCOpts(grpc.ConnectionTimeout(500 * time.Millisecond)))
+	grpc_health_v1.RegisterHealthServer(GetGRPCServer(), &HealthServerImpl{})
 }
 
 func NewServer(opts ...Options) {
@@ -37,7 +42,8 @@ func NewServer(opts ...Options) {
 	for _, opt := range opts {
 		opt(server.option)
 	}
-	server.gServer = grpc.NewServer(server.option.gOpts...) // 初始化grpc服务
+	// 初始化gRPC服务
+	server.gServer = grpc.NewServer(server.option.gOpts...)
 	GServer = &server
 }
 
@@ -76,7 +82,7 @@ func (s *Server) serve() error {
 		return err
 	}
 
-	// 注册grpc服务
+	// 注册gRPC服务
 	reflection.Register(s.gServer)
 	if err := s.gServer.Serve(s.listener); err != nil {
 		log.Errorf("grpc serve failed, err= %v", err)
