@@ -26,15 +26,16 @@ log()
     esac
 }
 
+rm -r output
 mkdir -p output/bin output/log output/conf
 cp -r conf output
 
-#log "DEBUG" "Init docker consul"
-#docker-compose -f docker-compose.yml up -d
-#if [ $? -eq 0 ]; then
-#    log "INFO" "Start docker consul successfully !"
-#else
-#    log "ERROR" "Start docker consul unsuccessfully !"
-#fi
+log "DEBUG" "Init docker consul"
+docker-compose -f docker-compose.yml up -d
+if [ $? -eq 0 ]; then
+    log "INFO" "Start docker consul successfully !"
+else
+    log "ERROR" "Start docker consul unsuccessfully !"
+fi
 
 go build -o output/bin/$RUN_NAME
