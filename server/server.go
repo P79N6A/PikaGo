@@ -2,12 +2,13 @@ package server
 
 import (
 	"code.byted.org/gopkg/pkg/log"
-	"errors"
 	"fmt"
+	"github.com/Carey6918/PikaRPC/client"
 	"github.com/Carey6918/PikaRPC/helper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/resolver"
 	"net"
 	"os"
 	"os/signal"
@@ -25,14 +26,14 @@ var GServer *Server // 全局服务
 
 func Init() {
 	InitConfig()
+	resolver.Register(client.NewBuilder("test")) // consul lb
 
 	// 通过consul注册服务
 	if err := NewRegisterContest().Register(); err != nil {
 		log.Fatalf("consul register failed, err= %v", err)
 	}
 
-
-	NewServer(WithGRPCOpts(grpc.ConnectionTimeout(500 * time.Millisecond)))
+	NewServer(WithGRPCOpts(grpc.ConnectionTimeout(1 * time.Second)))
 	grpc_health_v1.RegisterHealthServer(GetGRPCServer(), &HealthServerImpl{})
 }
 
@@ -65,10 +66,12 @@ func waitSignal(errCh chan error) error {
 			switch sig {
 			// exit forcely
 			case syscall.SIGTERM: // 结束程序(可以被捕获、阻塞或忽略)
-				return errors.New(sig.String())
+				log.Infof("stop run, signals= %v",sig.String())
+				return nil
 			case syscall.SIGHUP, syscall.SIGINT: // 终端连接断开/用户发送(ctrl+c)结束
 				GServer.stop()
-				return errors.New(sig.String())
+				log.Infof("stop run, signals= %v",sig.String())
+				return nil
 			}
 		case err := <-errCh:
 			return err
@@ -85,7 +88,6 @@ func (s *Server) serve() error {
 	// 注册gRPC服务
 	reflection.Register(s.gServer)
 	if err := s.gServer.Serve(s.listener); err != nil {
-		log.Errorf("grpc serve failed, err= %v", err)
 		return err
 	}
 	return nil
